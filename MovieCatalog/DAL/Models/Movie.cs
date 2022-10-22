@@ -26,6 +26,7 @@ namespace MovieCatalog.DAL.Models
         // <<< optional fields
 
         // linking fields >>>
+        public List<Genre> Genres { get; set; }
         public List<Review> Reviews { get; set; }
         // <<< linking fields
     }
