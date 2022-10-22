@@ -4,11 +4,15 @@ namespace MovieCatalog.DAL.Models
 {
     public class Movie
     {
+        // mandatory fields >>>
         [Required]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = "Untitled";
+        // <<< mandatory fields
+
+        // optional fields >>>
         public string? Poster { get; set; }
         public string? Description { get; set; }
         public int? Year { get; set; }
@@ -19,5 +23,10 @@ namespace MovieCatalog.DAL.Models
         public int? Budget { get; set; }
         public int? Fees { get; set; }
         public int? AgeLimit { get; set; }
+        // <<< optional fields
+
+        // linking fields >>>
+        public List<Review> Reviews { get; set; }
+        // <<< linking fields
     }
 }
