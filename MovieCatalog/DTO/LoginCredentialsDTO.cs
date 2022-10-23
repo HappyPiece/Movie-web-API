@@ -1,4 +1,4 @@
-﻿namespace MovieCatalog.DAL.Models
+﻿namespace MovieCatalog.DTO
 {
     public class LoginCredentialsDTO
     {
