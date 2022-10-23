@@ -6,10 +6,10 @@ namespace MovieCatalog.DTO
     public class ProfileDTO
     {
         [Required]
-        public int id { get; set; }
+        public Guid id { get; set; }
 
         [Required]
-        public string? nickName { get; set; }
+        public string nickName { get; set; }
 
         [Required]
         [EmailAddress]
