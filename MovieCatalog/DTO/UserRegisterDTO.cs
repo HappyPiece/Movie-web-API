@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MovieCatalog.DAL.Models
+namespace MovieCatalog.DTO
 {
     public class UserRegisterDTO
     {
@@ -19,7 +19,7 @@ namespace MovieCatalog.DAL.Models
 
         public DateTime birthDate { get; set; }
 
-        [Range(0,1)]
+        [Range(0, 1)]
         public int gender { get; set; }
     }
 }
