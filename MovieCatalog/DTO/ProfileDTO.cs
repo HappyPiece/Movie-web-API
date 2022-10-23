@@ -18,7 +18,7 @@ namespace MovieCatalog.DTO
 
         [Required]
         public string name { get; set; }
-        public DateTime birthDate { get; set; }
-        public Gender gender { get; set; }
+        public DateTime? birthDate { get; set; }
+        public Gender? gender { get; set; }
     }
 }
