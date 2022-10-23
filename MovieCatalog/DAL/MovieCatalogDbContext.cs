@@ -5,10 +5,10 @@ namespace MovieCatalog.DAL
 {
     public class MovieCatalogDbContext : DbContext
     {
-        DbSet<Movie> movies { get; set; }
-        DbSet<User> users { get; set; }
-        DbSet<Review> reviews { get; set; }
-        DbSet<Genre> genres { get; set; }
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Genre> Genres { get; set; }
         public MovieCatalogDbContext(DbContextOptions<MovieCatalogDbContext> options) : base(options)
         {
 
