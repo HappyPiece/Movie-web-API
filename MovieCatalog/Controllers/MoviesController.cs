@@ -72,5 +72,29 @@ namespace MovieCatalog.Controllers
                 pageInfo = pageInfo
             });
         }
+
+        [HttpGet("details/{id}")]
+        public IActionResult getMovie(Guid id)
+        {
+            var movie = _context.Movies.Where(x => x.Id == id).Select(x => new MovieDetailsDTO
+            {
+                Id = x.Id,
+                AgeLimit = x.AgeLimit,
+                Budget = x.Budget,
+                Country = x.Country,
+                Description = x.Description,
+                Director = x.Director,
+                Fees = x.Fees,
+                Genres = x.Genres,
+                Name = x.Name,
+                Poster = x.Poster,
+                Reviews = x.Reviews,
+                Tagline = x.Tagline,
+                Time = x.Time,
+                Year = x.Year
+            }).SingleOrDefault();
+
+            return StatusCode(200, movie);
+        }
     }
 }
