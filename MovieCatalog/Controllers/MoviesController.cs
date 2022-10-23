@@ -42,7 +42,7 @@ namespace MovieCatalog.Controllers
                 reviews = x.Reviews.Select(y => new ReviewShortDTO
                 {
                     id = y.Id,
-                    rating = (int)y.Rating
+                    rating = Convert.ToInt32(y.Rating)
                 }).ToList(),
             }).ToList();
 
