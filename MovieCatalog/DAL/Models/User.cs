@@ -21,6 +21,7 @@ namespace MovieCatalog.DAL.Models
         public DateTime? BirthDate { get; set; }
         public bool? IsAdmin { get; set; } = false;
         public Gender? Gender { get; set; }
+        public string? AvatarLink { get; set; }
         // <<< optional fields
 
         // linking fields >>>
