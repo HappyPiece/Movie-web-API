@@ -18,6 +18,7 @@ namespace MovieCatalog.DAL.Models
         // optional fields >>>
         public string? Email { get; set; }
         public string? Name { get; set; }
+        public DateTime? BirthDate { get; set; }
         public bool? IsAdmin { get; set; } = false;
         public Gender? Gender { get; set; }
         // <<< optional fields
