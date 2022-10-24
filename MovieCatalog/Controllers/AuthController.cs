@@ -63,6 +63,7 @@ namespace MovieCatalog.Controllers
                 issuer: JwtConfigurations.Issuer,
                 audience: JwtConfigurations.Audience,
                 notBefore: DateTime.UtcNow,
+                claims: identity.Claims,
                 expires: DateTime.UtcNow.AddMinutes(JwtConfigurations.Lifetime),
                 signingCredentials: new SigningCredentials(JwtConfigurations.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
                 );
