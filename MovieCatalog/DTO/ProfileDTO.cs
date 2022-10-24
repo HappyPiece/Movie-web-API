@@ -5,6 +5,7 @@ namespace MovieCatalog.DTO
 {
     public class ProfileDTO
     {
+        // mandatory fields >>>
         [Required]
         public Guid id { get; set; }
 
@@ -14,11 +15,15 @@ namespace MovieCatalog.DTO
         [Required]
         [EmailAddress]
         public string email { get; set; }
-        public string? avatarLink { get; set; }
 
         [Required]
         public string name { get; set; }
+        // <<< mandatory fields
+
+        // optional fields >>>
+        public string? avatarLink { get; set; }
         public DateTime? birthDate { get; set; }
-        public Gender? gender { get; set; }
+        public GenderDTO? gender { get; set; }
+        // <<< optional fields
     }
 }

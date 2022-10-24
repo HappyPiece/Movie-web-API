@@ -17,9 +17,8 @@ namespace MovieCatalog.DTO
         [EmailAddress]
         public string email { get; set; }
 
-        public DateTime birthDate { get; set; }
+        public DateTime? birthDate { get; set; }
 
-        [Range(0, 1)]
-        public int gender { get; set; }
+        public GenderDTO? gender { get; set; }
     }
 }
