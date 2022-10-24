@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MovieCatalog.DAL;
+using MovieCatalog.DAL.Models;
 using MovieCatalog.DTO;
 
 namespace MovieCatalog.Controllers
@@ -29,7 +30,7 @@ namespace MovieCatalog.Controllers
                 nickName = user.Username,
                 email = user.Email,
                 birthDate = user.BirthDate,
-                gender = user.Gender,
+                gender = (GenderDTO)user.Gender,
                 avatarLink = user.AvatarLink
             };
             return StatusCode(200, profile);
@@ -52,7 +53,7 @@ namespace MovieCatalog.Controllers
             var user = await _context.Users.Where(x => x.Id == profileDTO.id).SingleOrDefaultAsync();
             {
                 user.AvatarLink = profileDTO.avatarLink;
-                user.Gender = profileDTO.gender;
+                user.Gender = (Gender)profileDTO.gender;
                 user.Name = profileDTO.name;
                 user.Username = profileDTO.nickName;
                 user.Email = profileDTO.email;

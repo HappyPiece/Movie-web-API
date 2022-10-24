@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.EntityFrameworkCore;
 using MovieCatalog.DAL;
 using MovieCatalog.DTO;
 using System.Runtime.CompilerServices;
@@ -27,7 +28,7 @@ namespace MovieCatalog.Controllers
                 page = 1;
             }
 
-            var movies = _context.Movies.Select(x => new MovieElementDTO
+            var movies = _context.Movies.Include(x => x.Genres).Include(x => x.Reviews).Select(x => new MovieElementDTO
             {
                 id = x.Id,
                 name = x.Name,
@@ -76,22 +77,39 @@ namespace MovieCatalog.Controllers
         [HttpGet("details/{id}")]
         public IActionResult getMovie(Guid id)
         {
-            var movie = _context.Movies.Where(x => x.Id == id).Select(x => new MovieDetailsDTO
+            var movie = _context.Movies.Where(x => x.Id == id).Include(x => x.Genres).Include(x => x.Reviews).ThenInclude(x => x.User).Select(x => new MovieDetailsDTO
             {
-                Id = x.Id,
-                AgeLimit = x.AgeLimit,
-                Budget = x.Budget,
-                Country = x.Country,
-                Description = x.Description,
-                Director = x.Director,
-                Fees = x.Fees,
-                Genres = x.Genres,
-                Name = x.Name,
-                Poster = x.Poster,
-                Reviews = x.Reviews,
-                Tagline = x.Tagline,
-                Time = x.Time,
-                Year = x.Year
+                id = x.Id,
+                ageLimit = x.AgeLimit,
+                budget = x.Budget,
+                country = x.Country,
+                description = x.Description,
+                director = x.Director,
+                fees = x.Fees,
+                genres = x.Genres.Select(y => new GenreDTO
+                {
+                    id = y.Id,
+                    name = y.Name
+                }).ToList(),
+                name = x.Name,
+                poster = x.Poster,
+                reviews = x.Reviews.Select(y => new ReviewDTO
+                {
+                    id = y.Id,
+                    reviewText = y.ReviewText,
+                    isAnonymous = Convert.ToBoolean(y.IsAnonymous),
+                    rating = Convert.ToInt32(y.Rating),
+                    createDateTime = Convert.ToDateTime(y.CreationDateTime),
+                    author = new UserShortDTO
+                    {
+                        userId = y.User.Id,
+                        avatar = y.User.AvatarLink,
+                        nickName = y.User.Username
+                    }
+                }).ToList(),
+                tagline = x.Tagline,
+                time = x.Time,
+                year = x.Year
             }).SingleOrDefault();
 
             return StatusCode(200, movie);
