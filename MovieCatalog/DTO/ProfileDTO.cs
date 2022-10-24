@@ -14,7 +14,7 @@ namespace MovieCatalog.DTO
         [Required]
         [EmailAddress]
         public string email { get; set; }
-        public string avatarLink { get; set; }
+        public string? avatarLink { get; set; }
 
         [Required]
         public string name { get; set; }
