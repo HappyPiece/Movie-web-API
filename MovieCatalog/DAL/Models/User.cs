@@ -25,8 +25,8 @@ namespace MovieCatalog.DAL.Models
         // <<< optional fields
 
         // linking fields >>>
-        public List<Review> Reviews { get; set; }
-        public List<Movie> FavouriteMovies { get; set; }
+        public List<Review> Reviews { get; set; } = new List<Review>();
+        public List<Movie> FavouriteMovies { get; set; } = new List<Movie>();
         // <<< linking fields
     }
     

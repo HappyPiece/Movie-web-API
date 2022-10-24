@@ -11,5 +11,9 @@ namespace MovieCatalog.DAL.Models
         [Required]
         public string Name { get; set; }
         // <<< mandatory fields
+
+        // linking fields >>>
+        public List<Movie> Movies { get; set; } = new List<Movie>();
+        // <<< linking fields
     }
 }
