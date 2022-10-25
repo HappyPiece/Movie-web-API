@@ -1,6 +1,6 @@
 ﻿namespace MovieCatalog.DTO
 {
-    public class MoviesListModel
+    public class MoviesListDTO
     {
         public List<MovieElementDTO>? movies { get; set; }
     }
