@@ -17,7 +17,40 @@ namespace MovieCatalog.Controllers
             _context = context;
         }
 
-        //[HttpGet]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> getFavorites()
+        {
+            var user = await _context.Users.Where(x => x.Id.ToString() == User.Identity.Name)
+                .Include(x => x.FavouriteMovies)
+                    .ThenInclude(x => x.Reviews)
+                .Include(x => x.FavouriteMovies)
+                    .ThenInclude(x => x.Genres)
+            .SingleOrDefaultAsync();
+
+            var favorites = new MoviesListDTO
+            {
+                movies = user.FavouriteMovies.Select(x => new MovieElementDTO
+                {
+                    id = x.Id,
+                    name = x.Name,
+                    country = x.Country,
+                    poster = x.Poster,
+                    year = x.Year,
+                    genres = x.Genres.Select(y => new GenreDTO
+                    {
+                        id = y.Id,
+                        name = y.Name
+                    }).ToList(),
+                    reviews = x.Reviews.Select(y => new ReviewShortDTO
+                    {
+                        id = y.Id,
+                        rating = Convert.ToInt32(y.Rating)
+                    }).ToList()
+                }).ToList()
+            };
+            return StatusCode(200, favorites);
+        }
 
         [HttpPost("{id}/add")]
         [Authorize]
