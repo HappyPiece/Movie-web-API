@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using MovieCatalog.DAL;
 using MovieCatalog.DAL.Models;
 using MovieCatalog.DTO;
 using MovieCatalog.Properties;
+using MovieCatalog.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace MovieCatalog.Controllers
 {
@@ -15,10 +19,12 @@ namespace MovieCatalog.Controllers
     public class AuthController : ControllerBase
     {
         private readonly MovieCatalogDbContext _context;
+        private readonly ILogoutService _logoutService;
 
-        public AuthController(MovieCatalogDbContext context)
+        public AuthController(MovieCatalogDbContext context, ILogoutService loggedOutService)
         {
             _context = context;
+            _logoutService = loggedOutService;
         }
 
         [HttpPost("register")]
@@ -68,6 +74,14 @@ namespace MovieCatalog.Controllers
                 signingCredentials: new SigningCredentials(JwtConfigurations.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
                 );
             return StatusCode(200, new { token = new JwtSecurityTokenHandler().WriteToken(jwt) });
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> logout()
+        {
+            await _logoutService.InvalidateToken(Request);
+            return StatusCode(200, "Logged out");
         }
 
         private ClaimsIdentity GetIdentity(string username, string password)
