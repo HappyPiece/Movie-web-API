@@ -4,12 +4,16 @@ using Microsoft.IdentityModel.Tokens;
 using MovieCatalog.Properties;
 using Microsoft.EntityFrameworkCore;
 using MovieCatalog.DAL;
+using MovieCatalog.Services;
+using MovieCatalog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+builder.Services.AddScoped<ILogoutService, LogoutService>();
+
+builder.Services.AddAuthentication(AdvancedJwtBearerHandler.AdvancedJwtBearerScheme).AddScheme<JwtBearerOptions, AdvancedJwtBearerHandler>(AdvancedJwtBearerHandler.AdvancedJwtBearerScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -22,6 +26,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true
     };
 });
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
