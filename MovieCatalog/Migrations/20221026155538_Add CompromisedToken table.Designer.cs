@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MovieCatalog.DAL;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MovieCatalog.Migrations
 {
     [DbContext(typeof(MovieCatalogDbContext))]
-    partial class MovieCatalogDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221026155538_Add CompromisedToken table")]
+    partial class AddCompromisedTokentable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +36,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("GenreMovie", (string)null);
+                    b.ToTable("GenreMovie");
                 });
 
             modelBuilder.Entity("MovieCatalog.DAL.Models.CompromisedToken", b =>
@@ -52,7 +54,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CompromisedTokens", (string)null);
+                    b.ToTable("CompromisedTokens");
                 });
 
             modelBuilder.Entity("MovieCatalog.DAL.Models.Genre", b =>
@@ -67,7 +69,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres", (string)null);
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("MovieCatalog.DAL.Models.Movie", b =>
@@ -112,7 +114,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies", (string)null);
+                    b.ToTable("Movies");
                 });
 
             modelBuilder.Entity("MovieCatalog.DAL.Models.Review", b =>
@@ -146,7 +148,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("MovieCatalog.DAL.Models.User", b =>
@@ -183,7 +185,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MovieUser", b =>
@@ -198,7 +200,7 @@ namespace MovieCatalog.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("MovieUser", (string)null);
+                    b.ToTable("MovieUser");
                 });
 
             modelBuilder.Entity("GenreMovie", b =>
