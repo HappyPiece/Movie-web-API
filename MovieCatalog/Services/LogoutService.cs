@@ -12,30 +12,38 @@ namespace MovieCatalog.Services
     public class LogoutService : ILogoutService
     {
         public static string HeaderRegex = @"Bearer (?<token>.*)";
-        private readonly MovieCatalogDbContext _context;
         private readonly JwtSecurityTokenHandler _handler;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public LogoutService(MovieCatalogDbContext context)
+        public LogoutService(IServiceScopeFactory scopeFactory)
         {
             _handler = new JwtSecurityTokenHandler();
-            _context = context;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task InvalidateToken(HttpRequest request)
         {
-            var jwt = ExtractJwtToken(request);
-            await _context.CompromisedTokens.AddAsync(new CompromisedToken
-            { 
-                Token = jwt.ToString(),
-                ExpiryTime = jwt.ValidTo
-            } );
-            await _context.SaveChangesAsync();
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MovieCatalogDbContext>();
+                var jwt = ExtractJwtToken(request);
+                await context.CompromisedTokens.AddAsync(new CompromisedToken
+                {
+                    Token = jwt.ToString(),
+                    ExpiryTime = jwt.ValidTo
+                });
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<bool> IsInvalid(HttpRequest request)
         {
-            var jwt = ExtractJwtToken(request);
-            return await _context.CompromisedTokens.AnyAsync(x => x.Token == jwt.ToString());
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MovieCatalogDbContext>();
+                var jwt = ExtractJwtToken(request);
+                return await context.CompromisedTokens.AnyAsync(x => x.Token == jwt.ToString());
+            }
         }
 
         private JwtSecurityToken ExtractJwtToken(HttpRequest request)
