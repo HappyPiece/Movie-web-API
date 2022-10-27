@@ -12,30 +12,64 @@ namespace MovieCatalog.Services
     public class LogoutService : ILogoutService
     {
         public static string HeaderRegex = @"Bearer (?<token>.*)";
-        private readonly MovieCatalogDbContext _context;
+        private CancellationTokenSource _cancellationTokenSource;
+        private CancellationToken _cancellationToken;
         private readonly JwtSecurityTokenHandler _handler;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public LogoutService(MovieCatalogDbContext context)
+        public LogoutService(IServiceScopeFactory scopeFactory)
         {
             _handler = new JwtSecurityTokenHandler();
-            _context = context;
+            _scopeFactory = scopeFactory;
+            _cancellationTokenSource = new CancellationTokenSource();
+            _cancellationToken = _cancellationTokenSource.Token;
+            Task.Factory.StartNew(DeleteExpiredTokens, _cancellationToken);
+        }
+
+        ~LogoutService()
+        {
+            _cancellationTokenSource.Cancel();
         }
 
         public async Task InvalidateToken(HttpRequest request)
         {
-            var jwt = ExtractJwtToken(request);
-            await _context.CompromisedTokens.AddAsync(new CompromisedToken
-            { 
-                Token = jwt.ToString(),
-                ExpiryTime = jwt.ValidTo
-            } );
-            await _context.SaveChangesAsync();
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MovieCatalogDbContext>();
+                var jwt = ExtractJwtToken(request);
+                await context.CompromisedTokens.AddAsync(new CompromisedToken
+                {
+                    Token = jwt.ToString(),
+                    ExpiryTime = jwt.ValidTo
+                });
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<bool> IsInvalid(HttpRequest request)
         {
-            var jwt = ExtractJwtToken(request);
-            return await _context.CompromisedTokens.AnyAsync(x => x.Token == jwt.ToString());
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<MovieCatalogDbContext>();
+                var jwt = ExtractJwtToken(request);
+                return await context.CompromisedTokens.AnyAsync(x => x.Token == jwt.ToString());
+            }
+        }
+
+        private async Task DeleteExpiredTokens()
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                while (!_cancellationToken.IsCancellationRequested)
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<MovieCatalogDbContext>();
+                    context.CompromisedTokens.RemoveRange(await context.CompromisedTokens.Where(x => x.ExpiryTime < DateTime.UtcNow).ToListAsync());
+                    await context.SaveChangesAsync();
+                    
+                    Console.WriteLine("Kupil muzhik shlyapu, a ona yemu expired tokeny udalila");
+                    await Task.Delay(1000*60);
+                }
+            }
         }
 
         private JwtSecurityToken ExtractJwtToken(HttpRequest request)

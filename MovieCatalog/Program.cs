@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddScoped<ILogoutService, LogoutService>();
+builder.Services.AddSingleton<ILogoutService, LogoutService>();
 
 builder.Services.AddAuthentication(AdvancedJwtBearerHandler.AdvancedJwtBearerScheme).AddScheme<JwtBearerOptions, AdvancedJwtBearerHandler>(AdvancedJwtBearerHandler.AdvancedJwtBearerScheme, options =>
 {

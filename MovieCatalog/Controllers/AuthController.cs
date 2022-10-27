@@ -81,7 +81,11 @@ namespace MovieCatalog.Controllers
         public async Task<IActionResult> logout()
         {
             await _logoutService.InvalidateToken(Request);
-            return StatusCode(200, "Logged out");
+            return StatusCode(200, new
+            {
+                token = "",
+                message = "Logged out"
+            });
         }
 
         private ClaimsIdentity GetIdentity(string username, string password)
