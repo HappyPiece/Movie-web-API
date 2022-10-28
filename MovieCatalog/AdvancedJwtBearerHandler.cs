@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using MovieCatalog.Controllers;
 using MovieCatalog.DAL;
+using MovieCatalog.Properties;
 using MovieCatalog.Services;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -37,12 +38,12 @@ namespace MovieCatalog
         {
             if (!Request.Headers.ContainsKey(HeaderNames.Authorization))
             {
-                return AuthenticateResult.Fail("No auth header found");
+                return AuthenticateResult.Fail(GenericConstants.MissingAuthHeader);
             }
 
             if (await _logoutService.IsInvalid(Request))
             {
-                return AuthenticateResult.Fail("Token is no more valid");
+                return AuthenticateResult.Fail(GenericConstants.InvalidToken);
             }
 
             AuthenticateResult result = await base.HandleAuthenticateAsync();

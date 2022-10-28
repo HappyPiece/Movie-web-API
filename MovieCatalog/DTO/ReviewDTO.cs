@@ -10,6 +10,6 @@
         public string? reviewText { get; set; }
         public bool isAnonymous { get; set; }
         public DateTime createDateTime { get; set; }
-        public UserShortDTO author { get; set; }
+        public UserShortDTO? author { get; set; }
     }
 }
