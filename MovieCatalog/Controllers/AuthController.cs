@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using MovieCatalog.DAL;
@@ -20,89 +21,120 @@ namespace MovieCatalog.Controllers
     {
         private readonly MovieCatalogDbContext _context;
         private readonly ILogoutService _logoutService;
+        private readonly IUserService _userService;
 
-        public AuthController(MovieCatalogDbContext context, ILogoutService loggedOutService)
+        public AuthController(MovieCatalogDbContext context, ILogoutService loggedOutService, IUserService userService)
         {
             _context = context;
             _logoutService = loggedOutService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> register(UserRegisterDTO userRegisterDTO)
+        public async Task<IActionResult> Register(UserRegisterDTO userRegisterDTO)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(400, ModelState);
+                }
+
+                var flaws = await ValidateRegisterCredentials(userRegisterDTO);
+                if (flaws.Count > 0)
+                {
+                    return StatusCode(400, flaws);
+                }
+
+                await _userService.RegisterUser(userRegisterDTO);
+
+                return await Login(new LoginCredentialsDTO
+                {
+                    username = userRegisterDTO.userName,
+                    password = userRegisterDTO.password
+                });
             }
-
-            await _context.Users.AddAsync(new User
+            catch (Exception exception)
             {
-                Name = userRegisterDTO.name,
-                Email = userRegisterDTO.email,
-                Username = userRegisterDTO.userName,
-                Password = userRegisterDTO.password,
-                BirthDate = userRegisterDTO.birthDate,
-                Gender = (Gender)userRegisterDTO.gender
-            });
-            await _context.SaveChangesAsync();
-
-            return login(new LoginCredentialsDTO
-            {
-                username = userRegisterDTO.userName,
-                password = userRegisterDTO.password
-            });
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
+            }
         }
 
         [HttpPost("login")]
-        public IActionResult login(LoginCredentialsDTO loginCredentialsDTO)
+        public async Task<IActionResult> Login(LoginCredentialsDTO loginCredentialsDTO)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(400, ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(400, ModelState);
+                }
+
+                var identity = await _userService.GetUserIdentity(loginCredentialsDTO.username, loginCredentialsDTO.password);
+                if (identity == null)
+                {
+                    return StatusCode(400, GenericConstants.InvalidCredentials);
+                }
+
+                var jwt = new JwtSecurityToken(
+                    issuer: JwtConfigurations.Issuer,
+                    audience: JwtConfigurations.Audience,
+                    notBefore: DateTime.UtcNow,
+                    claims: identity.Claims,
+                    expires: DateTime.UtcNow.AddMinutes(JwtConfigurations.Lifetime),
+                    signingCredentials: new SigningCredentials(JwtConfigurations.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
+                    );
+
+                return StatusCode(200, new { token = new JwtSecurityTokenHandler().WriteToken(jwt) });
             }
-            var identity = GetIdentity(loginCredentialsDTO.username, loginCredentialsDTO.password);
-            if (identity == null)
+            catch (Exception exception)
             {
-                return StatusCode(400, "Invalid username or password");
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
             }
-            var jwt = new JwtSecurityToken(
-                issuer: JwtConfigurations.Issuer,
-                audience: JwtConfigurations.Audience,
-                notBefore: DateTime.UtcNow,
-                claims: identity.Claims,
-                expires: DateTime.UtcNow.AddMinutes(JwtConfigurations.Lifetime),
-                signingCredentials: new SigningCredentials(JwtConfigurations.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
-                );
-            return StatusCode(200, new { token = new JwtSecurityTokenHandler().WriteToken(jwt) });
         }
 
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> logout()
+        public async Task<IActionResult> Logout()
         {
-            await _logoutService.InvalidateToken(Request);
-            return StatusCode(200, new
+            try
             {
-                token = "",
-                message = "Logged out"
-            });
+                await _logoutService.InvalidateToken(Request);
+                return StatusCode(200, new
+                {
+                    token = "",
+                    message = "Logged out"
+                });
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
+            }
         }
 
-        private ClaimsIdentity GetIdentity(string username, string password)
+        private async Task<List<string>> ValidateRegisterCredentials(UserRegisterDTO userRegisterDTO)
         {
-            var user = _context.Users.Where(x => x.Username == username && x.Password == password).FirstOrDefault();
-            if (user == null)
+            List<string> flaws = new List<string>();
+
+            if (await _context.Users.AnyAsync(x => x.Username == userRegisterDTO.userName))
             {
-                return null;
+                flaws.Add(GenericConstants.UsernameTaken);
             }
 
-            var claims = new List<Claim>
+            if (await _context.Users.AnyAsync(x => x.Email == userRegisterDTO.email))
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, Convert.ToBoolean(user.IsAdmin)?"Admin":"User")
-            };
+                flaws.Add(GenericConstants.EmailTaken);
+            }
 
-            return new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+            if (!Regex.Match(userRegisterDTO.password, GenericConstants.PasswordRegex).Success)
+            {
+                flaws.Add(GenericConstants.InappropriatePassword);
+            }
+
+            return flaws;
         }
     }
 

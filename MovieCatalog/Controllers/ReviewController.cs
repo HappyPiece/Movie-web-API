@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieCatalog.DAL;
 using MovieCatalog.DAL.Models;
 using MovieCatalog.DTO;
+using MovieCatalog.Properties;
 
 namespace MovieCatalog.Controllers
 {
@@ -20,62 +21,123 @@ namespace MovieCatalog.Controllers
 
         [HttpPost("add")]
         [Authorize]
-        public async Task<IActionResult> addReview(Guid movieId, ReviewModifyDTO reviewModifyDTO)
+        public async Task<IActionResult> AddReview(Guid movieId, ReviewModifyDTO reviewModifyDTO)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(400, ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(400, ModelState);
+                }
 
-            var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).SingleOrDefaultAsync();
-            var review = new Review
+                if (!(await _context.Movies.AnyAsync(x => x.Id == movieId)))
+                {
+                    return StatusCode(404, GenericConstants.NoSuchMovie);
+                }
+
+                var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).SingleOrDefaultAsync();
+                var review = new Review
+                {
+                    ReviewText = reviewModifyDTO.reviewText,
+                    Rating = reviewModifyDTO.rating,
+                    IsAnonymous = reviewModifyDTO.isAnonymous,
+                    UserId = Guid.Parse(User.Identity.Name),
+                    User = await _context.Users.Where(x => x.Id == Guid.Parse(User.Identity.Name)).SingleOrDefaultAsync(),
+                    MovieId = movieId,
+                    Movie = movie
+                };
+
+                movie.Reviews.Add(review);
+                _context.Entry(review).State = EntityState.Added;
+                await _context.SaveChangesAsync();
+
+                return StatusCode(200, GenericConstants.ReviewAdded);
+            }
+            catch (Exception exception)
             {
-                ReviewText = reviewModifyDTO.reviewText,
-                Rating = reviewModifyDTO.rating,
-                IsAnonymous = reviewModifyDTO.isAnonymous,
-                UserId = Guid.Parse(User.Identity.Name),
-                User = await _context.Users.Where(x => x.Id == Guid.Parse(User.Identity.Name)).SingleOrDefaultAsync(),
-                MovieId = movieId,
-                Movie = movie
-            };
-            movie.Reviews.Add(review);
-            _context.Entry(review).State = EntityState.Added;
-            await _context.SaveChangesAsync();
-            return StatusCode(200, "Review successfully added");
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
+            }
         }
 
         [HttpPut("{id}/edit")]
         [Authorize]
-        public async Task<IActionResult> editReview(Guid movieId, Guid id, ReviewModifyDTO reviewModifyDTO)
+        public async Task<IActionResult> EditReview(Guid movieId, Guid id, ReviewModifyDTO reviewModifyDTO)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(400, ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(400, ModelState);
+                }
 
-            var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).SingleOrDefaultAsync();
-            var review = movie.Reviews.Where(x => x.Id == id).SingleOrDefault();
+                if (!(await _context.Movies.AnyAsync(x => x.Id == movieId)))
+                {
+                    return StatusCode(404, GenericConstants.NoSuchMovie);
+                }
+
+                var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).ThenInclude(x => x.User).SingleOrDefaultAsync();
+                if (!movie.Reviews.Any(x => x.Id == id))
+                {
+                    return StatusCode(404, GenericConstants.NoSuchReview);
+                }
+
+                var review = movie.Reviews.Where(x => x.Id == id).SingleOrDefault();
+                if (review.User.Id.ToString() != User.Identity.Name)
+                {
+                    Console.WriteLine(review.User.ToString());
+                    Console.WriteLine(User.Identity.Name);
+                    return StatusCode(403, GenericConstants.NotYourReview);
+                }
+
+                {
+                    review.ReviewText = reviewModifyDTO.reviewText;
+                    review.Rating = reviewModifyDTO.rating;
+                    review.IsAnonymous = reviewModifyDTO.isAnonymous;
+                }
+                await _context.SaveChangesAsync();
+
+                return StatusCode(200, GenericConstants.ReviewEdited);
+            }
+            catch (Exception exception)
             {
-                review.ReviewText = reviewModifyDTO.reviewText;
-                review.Rating = reviewModifyDTO.rating;
-                review.IsAnonymous = reviewModifyDTO.isAnonymous;
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
             }
-            await _context.SaveChangesAsync();
-
-            return StatusCode(200, "Review successfully edited");
         }
 
         [HttpDelete("{id}/delete")]
         [Authorize]
-        public async Task<IActionResult> deleteReview(Guid movieId, Guid id)
+        public async Task<IActionResult> DeleteReview(Guid movieId, Guid id)
         {
-            var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).SingleOrDefaultAsync();
-            if (movie.Reviews.Remove(movie.Reviews.Where(x => x.Id == id).SingleOrDefault()))
+            try
             {
+                if (!(await _context.Movies.AnyAsync(x => x.Id == movieId)))
+                {
+                    return StatusCode(404, GenericConstants.NoSuchMovie);
+                }
+
+                var movie = await _context.Movies.Where(x => x.Id == movieId).Include(x => x.Reviews).ThenInclude(x => x.User).SingleOrDefaultAsync();
+                if (!movie.Reviews.Any(x => x.Id == id))
+                {
+                    return StatusCode(404, GenericConstants.NoSuchReview);
+                }
+
+                var review = movie.Reviews.Where(x => x.Id == id).SingleOrDefault();
+                if (review.User.Id.ToString() != User.Identity.Name)
+                {
+                    return StatusCode(403, GenericConstants.NotYourReview);
+                }
+
+                movie.Reviews.Remove(review);
                 await _context.SaveChangesAsync();
-                return StatusCode(200, "Review successfully deleted");
+                return StatusCode(200, GenericConstants.ReviewDeleted);
             }
-            return StatusCode(500, "Unable to delete review");
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
+            }
         }
     }
 }
