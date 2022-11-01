@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieCatalog.DAL;
 using MovieCatalog.DAL.Models;
 using MovieCatalog.DTO;
+using MovieCatalog.Properties;
 
 namespace MovieCatalog.Controllers
 {
@@ -20,48 +21,59 @@ namespace MovieCatalog.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> getProfile()
+        public async Task<IActionResult> GetProfile()
         {
-            var user = await _context.Users.Where(x => x.Id.ToString() == User.Identity.Name).SingleOrDefaultAsync();
-            var profile = new ProfileDTO
+            try
             {
-                id = user.Id,
-                name = user.Name,
-                nickName = user.Username,
-                email = user.Email,
-                birthDate = user.BirthDate,
-                gender = (GenderDTO)user.Gender,
-                avatarLink = user.AvatarLink
-            };
-            return StatusCode(200, profile);
+                var user = await _context.Users.Where(x => x.Id.ToString() == User.Identity.Name).SingleOrDefaultAsync();
+                var profile = new ProfileDTO
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    nickName = user.Username,
+                    email = user.Email,
+                    birthDate = user.BirthDate,
+                    gender = (GenderDTO)user.Gender,
+                    avatarLink = user.AvatarLink
+                };
+                return StatusCode(200, profile);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
+            }
         }
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> editProfile(ProfileDTO profileDTO)
+        public async Task<IActionResult> EditProfile(ProfileDTO profileDTO)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return StatusCode(400, ModelState);
-            }
+                if (!ModelState.IsValid)
+                {
+                    return StatusCode(400, ModelState);
+                }
 
-            if (User.Identity.Name != profileDTO.id.ToString())
+                var user = await _context.Users.Where(x => x.Id == profileDTO.id).SingleOrDefaultAsync();
+                {
+                    user.AvatarLink = profileDTO.avatarLink;
+                    user.Gender = (Gender)profileDTO.gender;
+                    user.Name = profileDTO.name;
+                    user.Username = profileDTO.nickName;
+                    user.Email = profileDTO.email;
+                    user.BirthDate = profileDTO.birthDate;
+                }
+                await _context.SaveChangesAsync();
+
+                return StatusCode(200, GenericConstants.ProfileEdited);
+            }
+            catch (Exception exception)
             {
-                return StatusCode(400, "You can only edit your own profile");
+                Console.WriteLine(exception.Message);
+                return StatusCode(500, GenericConstants.InternalError);
             }
-
-            var user = await _context.Users.Where(x => x.Id == profileDTO.id).SingleOrDefaultAsync();
-            {
-                user.AvatarLink = profileDTO.avatarLink;
-                user.Gender = (Gender)profileDTO.gender;
-                user.Name = profileDTO.name;
-                user.Username = profileDTO.nickName;
-                user.Email = profileDTO.email;
-                user.BirthDate = profileDTO.birthDate;
-            }
-            await _context.SaveChangesAsync();
-
-            return StatusCode(200, "Profile successfully edited");
         }
     }
 }
