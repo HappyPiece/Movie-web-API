@@ -21,13 +21,13 @@ namespace MovieCatalog.Controllers
     {
         private readonly MovieCatalogDbContext _context;
         private readonly ILogoutService _logoutService;
-        private readonly IIdentityProvider _identityProvider;
+        private readonly IUserService _userService;
 
-        public AuthController(MovieCatalogDbContext context, ILogoutService loggedOutService, IIdentityProvider identityProvider)
+        public AuthController(MovieCatalogDbContext context, ILogoutService loggedOutService, IUserService userService)
         {
             _context = context;
             _logoutService = loggedOutService;
-            _identityProvider = identityProvider;
+            _userService = userService;
         }
 
         [HttpPost("register")]
@@ -46,17 +46,7 @@ namespace MovieCatalog.Controllers
                     return StatusCode(400, flaws);
                 }
 
-                await _context.Users.AddAsync(new User
-                {
-                    Name = userRegisterDTO.name,
-                    Email = userRegisterDTO.email,
-                    Username = userRegisterDTO.userName,
-                    Password = userRegisterDTO.password,
-                    BirthDate = userRegisterDTO.birthDate.HasValue ? userRegisterDTO.birthDate : GenericConstants.DefaultBirthday,
-                    Gender = userRegisterDTO.gender.HasValue ? (Gender)userRegisterDTO.gender : GenericConstants.DefaultGender,
-                    AvatarLink = GenericConstants.DefaultAvatar
-                });
-                await _context.SaveChangesAsync();
+                await _userService.RegisterUser(userRegisterDTO);
 
                 return await Login(new LoginCredentialsDTO
                 {
@@ -81,7 +71,7 @@ namespace MovieCatalog.Controllers
                     return StatusCode(400, ModelState);
                 }
 
-                var identity = await _identityProvider.GetIdentity(loginCredentialsDTO.username, loginCredentialsDTO.password);
+                var identity = await _userService.GetUserIdentity(loginCredentialsDTO.username, loginCredentialsDTO.password);
                 if (identity == null)
                 {
                     return StatusCode(400, GenericConstants.InvalidCredentials);
