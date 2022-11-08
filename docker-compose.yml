@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  backend:
+    image: movie-catalog:latest
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    environment:
+      DB_CONNECTION_STRING: "host=postgres;port=5432;database=movie-catalog;username=movie-dev;password=movie-dev"
+#      ASPNETCORE_HTTP_PORT: https://+:5001 
+      ASPNETCORE_URLS: http://+:5000
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=movie-dev
+      - POSTGRES_USER=movie-dev
+      - POSTGRES_DB=movie-catalog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
