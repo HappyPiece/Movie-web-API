@@ -33,11 +33,14 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 //DB
-builder.Services.AddDbContext<MovieCatalogDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDb")));
+builder.Services.AddDbContext<MovieCatalogDbContext>(options => options.UseNpgsql(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//healthcheck
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -48,11 +51,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<MovieCatalogDbContext>();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health");
 
 app.Run();

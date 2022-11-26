@@ -1,14 +1,17 @@
 # build
+# docker pull golang:1.18.8-alpine3.16
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
 WORKDIR /source
 COPY . .
-RUN dotnet restore "./MovieCatalog/MovieCatalog.csproj" --disable-parallel
-RUN dotnet publish "./MovieCatalog/MovieCatalog.csproj" -c debug -o /app --no-restore
+RUN dotnet restore "./MovieCatalog/MovieCatalog.csproj" --disable-parallel && dotnet publish "./MovieCatalog/MovieCatalog.csproj" -c debug -o /app --no-restore
 
 # runtime
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 
 WORKDIR /app
 COPY --from=build /app ./
+LABEL maintainer="tryhardfailanyway@gmail.com"
+USER 1000
+ENV "ENVIRONMENT"="stage"
 
 EXPOSE 5000
 
