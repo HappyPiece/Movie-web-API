@@ -1,24 +1,6 @@
-# image: mcr.microsoft.com/dotnet/sdk:latest
-
 stages:
   - build
   - deploy
-
-# variables:
-#   OBJECTS_DIRECTORY: 'obj'
-#   NUGET_PACKAGES_DIRECTORY: '.nuget'
-#   SOURCE_CODE_PATH: './MovieCatalog'
-
-# cache:
-#   key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
-#   paths:
-#     - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
-#     - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*'
-#     - '$NUGET_PACKAGES_DIRECTORY'
-#   policy: pull-push
-
-# before_script:
-#   - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
 
 build-image:
   stage: build
@@ -28,8 +10,8 @@ build-image:
   before_script:
     - 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS'
   script:
-    - 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
-    - 'docker push $IMAGE_NAME:$IMAGE_TAG'
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker push $IMAGE_NAME:$IMAGE_TAG
 
 deploy:
   stage: deploy
