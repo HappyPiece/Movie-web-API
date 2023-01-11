@@ -2,11 +2,14 @@ stages:
   - build
   - deploy
 
+variables:
+  IMAGE_NAME: happypiece/movie-catalog
+  IMAGE_TAG: latest
+
 build-image:
   stage: build
-  variables:
-    IMAGE_NAME: happypiece/movie-catalog
-    IMAGE_TAG: latest
+  tags:
+    - build
   before_script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
