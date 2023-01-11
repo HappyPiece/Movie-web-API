@@ -8,18 +8,19 @@ build-image:
     IMAGE_NAME: happypiece/movie-catalog
     IMAGE_TAG: latest
   before_script:
-    - 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS'
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
+    - docker image ls -aq | xargs docker image rm -f
     - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
     - docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
 deploy:
   stage: deploy
   before_script:
-    - 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS'
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
-    - 'docker container ls -aq | xargs docker container stop'
-    - 'docker container ls -aq | xargs docker container rm'
-    - 'docker image ls -aq | xargs docker image rm -f'
-    - 'docker compose up -d'
+    - docker container ls -aq | xargs docker container stop
+    - docker container ls -aq | xargs docker container rm
+    - docker image ls -aq | xargs docker image rm -f
+    - docker compose up -d
   environment: production
