@@ -7,6 +7,8 @@ namespace MovieCatalog.Properties
     {
         // minimum eight characters, at least one letter and one number
         public const string PasswordRegex = @"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$";
+        // number of milliseconds that defines how often expired tokens will be purged from database
+        public const int TokenPurgeFrequency = 1000*60*5;
 
         // auth-related >>>
         public const string MissingAuthHeader = "Authentication header required";

@@ -2,6 +2,7 @@
 using Microsoft.Net.Http.Headers;
 using MovieCatalog.DAL;
 using MovieCatalog.DAL.Models;
+using MovieCatalog.Properties;
 using System.Collections;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection.Metadata;
@@ -66,8 +67,8 @@ namespace MovieCatalog.Services
                     context.CompromisedTokens.RemoveRange(await context.CompromisedTokens.Where(x => x.ExpiryTime < DateTime.UtcNow).ToListAsync());
                     await context.SaveChangesAsync();
                     
-                    Console.WriteLine("Kupil muzhik shlyapu, a ona yemu expired tokeny udalila");
-                    await Task.Delay(1000*60);
+                    Console.WriteLine("Kupil muzhik shlyapu, a ona yemu prosrochenniye tokeny udalila");
+                    await Task.Delay(GenericConstants.TokenPurgeFrequency);
                 }
             }
         }

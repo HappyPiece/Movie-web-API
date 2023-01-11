@@ -27,11 +27,10 @@ namespace MovieCatalog
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock,
-            ILogoutService loggedOutService,
-            MovieCatalogDbContext movieCatalogDbContext
+            ILogoutService logoutService
         ) : base(options, logger, encoder, clock)
         {
-            _logoutService = loggedOutService;
+            _logoutService = logoutService;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
