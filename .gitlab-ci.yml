@@ -16,7 +16,7 @@ build-image:
   before_script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
-    - docker rmi $(docker image ls -a | grep '$IMAGE_NAME')
+    # - docker rmi $(docker image ls -a | grep '$IMAGE_NAME')
     - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
     - docker push ${IMAGE_NAME}:${IMAGE_TAG}
 
