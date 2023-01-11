@@ -25,6 +25,7 @@ deploy:
   tags:
     - deploy
   before_script:
+    - docker info
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
     - docker container ls -aq | xargs docker container stop
