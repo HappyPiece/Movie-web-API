@@ -3,8 +3,8 @@ version: '3.4'
 services:
   app:
     image: movie-catalog:latest
-    build: 
-      context: .
+    # build: 
+    #   context: .
     depends_on:
       - db
     ports:
