@@ -56,4 +56,4 @@ pages:
     - echo 'Updating pages...'
   artifacts:
     paths:
-      - public/
+      - 'public/'
