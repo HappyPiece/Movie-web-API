@@ -42,9 +42,6 @@ deploy:
   environment: production
 
 update-pages:
-  tags:
-    - docker
-    - shell
   stage: pages
   needs: [build-image]
   allow_failure: true
