@@ -8,6 +8,19 @@
 }
 
 .title {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  align-content: center;
+  justify-content: center;
   font-size: 3rem;
   font-weight: 700;
+}
+
+.main-text {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  align-content: center;
+  justify-content: center;
 }
