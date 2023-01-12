@@ -48,10 +48,10 @@ deploy:
 
 pages:
   rules:
-  - if: $CI_PIPELINE_SOURCE == "push"
-    changes:
-      - /public/**/*
-      - /public/*
+  # - if: $CI_PIPELINE_SOURCE == "push"
+  - changes:
+      - '/public/**/*'
+      - '/public/*'
     when: always
   stage: pages
   # needs: [build-image]
@@ -60,4 +60,4 @@ pages:
     - echo 'Updating pages...'
   artifacts:
     paths:
-      - /public/
+      - '/public/'
