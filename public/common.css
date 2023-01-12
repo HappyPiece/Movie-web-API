@@ -1,26 +1,95 @@
-.content-container
-{
+.content-container {
   display: flex;
   flex: 1 1 100%;
   flex-flow: row wrap;
-  align-content: center;
   justify-content: center;
+  align-content: flex-start;
+  padding: var(--default-padding);
+  gap: var(--default-padding);
 }
 
 .title {
   display: flex;
   flex: 1 1 100%;
   flex-flow: row wrap;
-  align-content: center;
   justify-content: center;
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-.main-text {
+.stages-container {
   display: flex;
   flex: 1 1 100%;
   flex-flow: row wrap;
-  align-content: center;
-  justify-content: center;
+  padding: var(--default-padding);
+  gap: var(--default-padding);
+}
+
+.stage-anchor {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  padding: var(--default-padding);
+}
+
+.stage-title {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.stage-content {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  /* border: 0.1rem solid var(--primary-text); */
+  background-color: var(--dead-coral);
+  border-radius: var(--default-border-radius);
+  gap: var(--default-padding);
+}
+
+.jobs-container {
+  display: flex;
+  flex: 1 1 100%;
+  padding: var(--default-padding);
+  flex-flow: row wrap;
+}
+
+.job-anchor {
+  flex: 1 1 100%;
+  padding: var(--default-padding);
+}
+
+.job-title {
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.job-description {
+}
+
+a {
+  color: var(--light-rich-black-FOGRA-29);
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--primary-text);
+}
+
+.anecdote {
+  color: transparent;
+}
+
+.anecdote:hover {
+  padding: var(--default-padding);
+  color: inherit;
 }
