@@ -42,6 +42,11 @@ deploy:
   environment: production
 
 pages:
+  rules:
+  - if: $CI_PIPELINE_SOURCE == "push"
+    changes:
+      - /public/**/*
+    when: on_success
   stage: pages
   needs: [build-image]
   allow_failure: true
@@ -49,4 +54,4 @@ pages:
     - echo 'Updating pages...'
   artifacts:
     paths:
-      - './public/'
+      - /public/
