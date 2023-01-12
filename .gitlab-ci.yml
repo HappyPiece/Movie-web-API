@@ -46,8 +46,8 @@ pages:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" 
       changes:
-        # - '**/*'
-        - 'public/**/*'
+        - '**/*'
+        # - 'public/**/*'
         # - 'public/*'
   stage: pages
   # needs: [build-image]
