@@ -41,7 +41,12 @@ deploy:
     - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: production
 
-update-pages:
+pages:
+  rules:
+  - if: $CI_PIPELINE_SOURCE == "push"
+    changes:
+      - /public/**/*
+    when: on_success
   stage: pages
   needs: [build-image]
   allow_failure: true
@@ -49,4 +54,4 @@ update-pages:
     - echo 'Updating pages...'
   artifacts:
     paths:
-      - './public/'
+      - /public/
