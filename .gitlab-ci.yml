@@ -17,24 +17,10 @@ lint:
     - dotnet format --no-restore -v n
     - echo 'Lint completed'
 
+include: 
+  - '.build-image-template.yml'
 build-image:
-  tags:
-    - build
-    - docker
-  stage: build
-  needs: [lint]
-  image: docker:20.10.16
-  services:
-    - docker:20.10.16-dind
-  before_script:
-    - docker info
-    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
-  script:
-    - echo 'Building docker image...'
-    - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-    - docker push ${IMAGE_NAME}:${IMAGE_TAG}
-    - echo 'Build completed, cleaning things up'
-    - docker image prune -af
+  extends: .build-image-template
 
 deploy:
   tags:
