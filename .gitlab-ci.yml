@@ -19,11 +19,15 @@ lint:
     - echo 'Linting project code...'
     - dotnet format --no-restore -v n
     - echo 'Lint completed'
+  when: never
+
 
 include: 
   - '.build-image-template.yml'
 build-image:
   extends: .build-image-template
+  when: never
+
 
 deploy:
   tags:
@@ -40,15 +44,17 @@ deploy:
     - docker compose up -d
     - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: production
+  when: never
 
 pages:
   rules:
   - if: $CI_PIPELINE_SOURCE == "push"
     changes:
       - /public/**/*
+      - /public/*
     when: on_success
   stage: pages
-  needs: [build-image]
+  # needs: [build-image]
   allow_failure: true
   script:
     - echo 'Updating pages...'
