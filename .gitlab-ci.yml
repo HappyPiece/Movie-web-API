@@ -19,14 +19,14 @@ lint:
     - echo 'Linting project code...'
     - dotnet format --no-restore -v n
     - echo 'Lint completed'
-  when: never
+  when: manual
 
 
 include: 
   - '.build-image-template.yml'
 build-image:
   extends: .build-image-template
-  when: never
+  when: manual
 
 
 deploy:
@@ -44,7 +44,7 @@ deploy:
     - docker compose up -d
     - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: production
-  when: never
+  when: manual
 
 pages:
   rules:
