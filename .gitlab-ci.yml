@@ -44,9 +44,9 @@ variables:
 
 pages:
   rules:
-  - if: true #$CI_PIPELINE_SOURCE == "push"
-  changes:
-    - /**/*
+    #- if: $CI_PIPELINE_SOURCE == "push" 
+    - changes:
+      - /**/*
       # - ./public/**/*
       # - ./public/*
   stage: pages
