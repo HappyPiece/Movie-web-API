@@ -52,7 +52,7 @@ pages:
     changes:
       - /public/**/*
       - /public/*
-    when: on_success
+    when: always
   stage: pages
   # needs: [build-image]
   allow_failure: true
