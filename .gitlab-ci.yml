@@ -31,10 +31,10 @@ build-image:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
     - echo 'Building docker image...'
-    # - docker rmi $(docker image ls -a | grep '$IMAGE_NAME')
     - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
     - docker push ${IMAGE_NAME}:${IMAGE_TAG}
-    - echo 'Build completed'
+    - echo 'Build completed, cleaning things up'
+    - docker image prune -af
 
 deploy:
   tags:
