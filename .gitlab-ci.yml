@@ -1,31 +1,52 @@
-image: mcr.microsoft.com/dotnet/sdk:latest
-
 stages:
   - build
   - deploy
+  - pages
 
 variables:
-  OBJECTS_DIRECTORY: 'obj'
-  NUGET_PACKAGES_DIRECTORY: '.nuget'
-  SOURCE_CODE_PATH: './MovieCatalog'
+  IMAGE_NAME: happypiece/movie-catalog
+  IMAGE_TAG: latest
 
-cache:
-  key: "$CI_JOB_STAGE-$CI_COMMIT_REF_SLUG"
-  paths:
-    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/project.assets.json'
-    - '$SOURCE_CODE_PATH$OBJECTS_DIRECTORY/*.csproj.nuget.*'
-    - '$NUGET_PACKAGES_DIRECTORY'
-  policy: pull-push
-
-before_script:
-  - 'dotnet restore --packages $NUGET_PACKAGES_DIRECTORY'
-
-build:
+lint:
+  tags:
+    - docker
   stage: build
+  image:
+    mcr.microsoft.com/dotnet/sdk:6.0
+  before_script:
+    - dotnet --version
   script:
-    - 'dotnet build --no-restore'
+    - echo 'Linting project code...'
+    - dotnet format --no-restore -v n
+    - echo 'Lint completed'
+
+include: 
+  - '.build-image-template.yml'
+build-image:
+  extends: .build-image-template
 
 deploy:
+  tags:
+    - deploy
   stage: deploy
-  script: echo "Define your deployment script!"
+  before_script:
+    - docker info
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+  script:
+    - echo 'Deploying project...'
+    - docker container ls -aq | xargs docker container stop
+    - docker container ls -aq | xargs docker container rm
+    - docker image ls -aq | xargs docker image rm -f
+    - docker compose up -d
+    - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: production
+
+update-pages:
+  stage: pages
+  needs: [build-image]
+  allow_failure: true
+  script:
+    - echo 'Updating pages...'
+  artifacts:
+    paths:
+      - './public/'
