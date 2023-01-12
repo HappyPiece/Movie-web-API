@@ -1,0 +1,13 @@
+.content-container
+{
+  display: flex;
+  flex: 1 1 100%;
+  flex-flow: row wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+}
