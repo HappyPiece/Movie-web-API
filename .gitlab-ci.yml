@@ -41,7 +41,7 @@ deploy:
     - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: production
 
-update-pages:
+pages:
   stage: pages
   needs: [build-image]
   allow_failure: true
