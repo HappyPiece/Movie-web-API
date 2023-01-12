@@ -14,7 +14,7 @@ lint:
   image:
     mcr.microsoft.com/dotnet/sdk:6.0
   before_script:
-    - docker info
+    - dotnet --version
   script:
     - echo 'Linting project code...'
     - dotnet format --no-restore -v n
