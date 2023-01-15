@@ -8,8 +8,8 @@ deploy-test:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
   script:
     - echo 'Deploying project to test...'
-    - docker container ls -aq | xargs docker container stop
-    - docker container ls -aq | xargs docker container rm
+    - docker container ls -aq | xargs docker container stop || true
+    - docker container ls -aq | xargs docker container rm || true
     - docker image prune -f
     - docker compose up -d
     - echo 'Deploy completed. Running in' $(docker container ls -q)
