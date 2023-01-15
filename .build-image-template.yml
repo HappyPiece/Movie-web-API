@@ -15,4 +15,4 @@
     - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
     - docker push ${IMAGE_NAME}:${IMAGE_TAG}
     - echo 'Build completed, cleaning things up'
-    - docker image prune -af
+    - docker image prune -f

@@ -1,4 +1,4 @@
-deploy-prod:
+deploy-test:
   tags:
     - test
     - shell
