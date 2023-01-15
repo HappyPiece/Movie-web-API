@@ -57,7 +57,7 @@
           <div class="stage-content">
             <div class="jobs-container">
               <div class="job-anchor">
-                <div class="job-title">deploy</div>
+                <div class="job-title">deploy-production</div>
                 <div>Deploys the service to a wannabe remote server</div>
                 <ul class="job-description">
                   <li>Prints <a href="https://docs.docker.com/engine/reference/commandline/info/">docker info</a> upon start</li>
@@ -71,6 +71,13 @@
                     fetches previously built image from the repository and gets the container up and running along with postgres database
                   </li>
                   <li>Logs IDs of containers the service is running in</li>
+                </ul>
+              </div>
+              <div class="job-anchor">
+                <div class="job-title">suggest-deploy-test</div>
+                <div>Deploys the service to a test server</div>
+                <ul class="job-description">
+                  <li>Does exactly what the 'production' one does, but in a differrent place</li>
                 </ul>
               </div>
             </div>
