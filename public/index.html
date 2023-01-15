@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pipeline Info</title>
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="./fonts.css" />
+    <link rel="stylesheet" href="./common.css" />
+  </head>
+  <body>
+    <div class="content-container">
+      <div class="title">Pipeline Info</div>
+      <div class="stages-container">
+        <div class="stage-anchor">
+          <div class="stage-title">build stage</div>
+          <div class="stage-content">
+            <div class="jobs-container">
+              <div class="job-anchor">
+                <div class="job-title">lint</div>
+                <div>Lints projects code</div>
+                <ul class="job-description">
+                  <li>Requires runner with docker executor, runs within dotnet SDK container</li>
+                  <li>Prints used dotnet version upon start</li>
+                  <li>
+                    Uses <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-format">dotnet format</a> to bring project code
+                    into line with preferences defined in .editorconfig file, if none is found, uses default values
+                  </li>
+                </ul>
+              </div>
+              <div class="job-anchor">
+                <div class="job-title">build-image</div>
+                <div>Builds docker image and pushes it to repository</div>
+                <ul class="job-description">
+                  <li>Is defined in '.build-image-template.yml' file</li>
+                  <li>Requires runner with docker executor, needs 'docker in docker', thus uses corresponding service</li>
+                  <li>Prints <a href="https://docs.docker.com/engine/reference/commandline/info/">docker info</a> upon start</li>
+                  <li>Logs into dockerhub through credentials given as masked variables</li>
+                  <li>
+                    Builds image, executing <a href="https://docs.docker.com/engine/reference/commandline/build/">docker build</a> command
+                    with name and tag supplied as global pipeline variables
+                  </li>
+                  <li>
+                    Pushes generated image to repository using
+                    <a href="https://docs.docker.com/engine/reference/commandline/push/">docker push</a> command
+                  </li>
+                  <li>
+                    Deletes any leftover images by executing
+                    <a href="https://docs.docker.com/engine/reference/commandline/image_prune/">docker image prune</a> command
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stage-anchor">
+          <div class="stage-title">deploy stage</div>
+          <div class="stage-content">
+            <div class="jobs-container">
+              <div class="job-anchor">
+                <div class="job-title">deploy</div>
+                <div>Deploys the service to a wannabe remote server</div>
+                <ul class="job-description">
+                  <li>Prints <a href="https://docs.docker.com/engine/reference/commandline/info/">docker info</a> upon start</li>
+                  <li>Logs into dockerhub</li>
+                  <li>
+                    Since the server is supposed to this single app, the job stops and removes any previously used containers and images
+                    (which will surely result in great downtime but who cares)
+                  </li>
+                  <li>
+                    Executes <a href="https://docs.docker.com/engine/reference/commandline/compose_up/">docker compose up</a> command, which
+                    fetches previously built image from the repository and gets the container up and running along with postgres database
+                  </li>
+                  <li>Logs IDs of containers the service is running in</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stage-anchor">
+          <div class="stage-title">pages stage</div>
+          <div class="stage-content">
+            <div class="jobs-container">
+              <div class="job-anchor">
+                <div class="job-title">pages</div>
+                <div>Updates GitLab Pages</div>
+                <ul class="job-description">
+                  <li>
+                    Is only performed in case it's push event that triggered the pipeline and there are changes to a 'public' folder
+                    containing content related to this very page you are currently reading
+                  </li>
+                  <li>Does literally nothing but says that it's alive and running</li>
+                  <li>
+                    <a href="https://docs.gitlab.com/ee/ci/yaml/#pages">Supplies forementioned artifacts to GitLab</a> for it to further
+                    process them into this documentation
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-anchor">
+        <div class="anecdote">
+          Хитс. Студент забегает в туалет и начинает жестко пушить обновы в свой проект, никак не остановится, уже все стены коммитами
+          исписал. Из кабинки выходит преподаватель и говорит:
+          <div>– Это ты что делаешь? Ты зачем в унитаз код пишешь?</div>
+          <div>Студент на пару секунд останавливается, оглядывается по сторонам, и вдруг как закричит:</div>
+          <div>– Блลลลล, это я получается в пайплайны насрал!</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -2,13 +2,13 @@ version: '3.4'
 
 services:
   app:
-    image: movie-catalog:latest
-    build: 
-      context: .
+    image: happypiece/movie-catalog:latest
+    # build: 
+    #   context: .
     depends_on:
       - db
     ports:
-      - "127.0.0.1:80:5000"
+      - "0.0.0.0:8008:5000"
     environment:
       DB_CONNECTION_STRING: "host=database_host; port=5432; database=movie-catalog; username=movie-dev; password=movie-dev"
       ASPNETCORE_HTTP_PORT: https://+:5001 
