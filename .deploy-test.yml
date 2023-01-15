@@ -10,7 +10,7 @@ deploy-test:
     - echo 'Deploying project to test...'
     - docker container ls -aq | xargs docker container stop
     - docker container ls -aq | xargs docker container rm
-    - docker image ls -aq | xargs docker image rm -f
+    - docker prune -f
     - docker compose up -d
     - echo 'Deploy completed. Running in' $(docker container ls -q)
   environment: test
